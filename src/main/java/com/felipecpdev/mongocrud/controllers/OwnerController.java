@@ -76,5 +76,10 @@ public class OwnerController {
         return ownerService.getOldestOwnerByModelName();
     }
 
+    @GetMapping("/cars-by-owner")
+    public List<Document> getNumberOfCarsByOwners(){
+        return ownerService.getNumberOfCarsByOwners();
+    }
+
 
 }

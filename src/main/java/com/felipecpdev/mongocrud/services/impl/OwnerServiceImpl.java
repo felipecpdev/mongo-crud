@@ -9,10 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
-import org.springframework.data.mongodb.core.aggregation.SortOperation;
-import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -96,4 +93,27 @@ public class OwnerServiceImpl implements OwnerService {
 
         return mongoTemplate.aggregate(aggregation, Owner.class, Document.class).getMappedResults();
     }
+
+    @Override
+    public List<Document> getNumberOfCarsByOwners() {
+        UnwindOperation unwindOperation
+                = Aggregation.unwind("carsList");
+
+        //example sum y count
+        GroupOperation groupOperation
+                = Aggregation.group("id")
+                .first("email").as("emailOwner")
+                .sum("carsList.modelYear").as("totalYear")
+                .count().as("numberOfCars");
+
+        //equivalente having en sql
+        MatchOperation matchOperation
+                = Aggregation.match(new Criteria("numberOfCars").gte(1));
+
+        Aggregation aggregation
+                = Aggregation.newAggregation(unwindOperation, groupOperation, matchOperation);
+        return mongoTemplate.aggregate(aggregation, Owner.class, Document.class).getMappedResults();
+    }
+
+
 }

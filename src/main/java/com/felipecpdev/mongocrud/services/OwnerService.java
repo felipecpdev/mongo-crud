@@ -19,4 +19,6 @@ public interface OwnerService {
     Page<Owner> search(String name, Integer minAge, Integer maxAge, String modelName, Pageable pageable);
 
     List<Document> getOldestOwnerByModelName();
+
+    List<Document> getNumberOfCarsByOwners();
 }
