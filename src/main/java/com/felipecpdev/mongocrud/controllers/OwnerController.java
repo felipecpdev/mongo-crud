@@ -5,6 +5,7 @@ import com.felipecpdev.mongocrud.services.OwnerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.bson.Document;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -66,5 +67,14 @@ public class OwnerController {
         Pageable pageable = PageRequest.of(page, size);
         return ownerService.search(name, minAge, maxAge, modelName, pageable);
     }
+
+
+    @GetMapping("/oldest")
+    @Operation(summary = "getOldestOwnerByModelName",
+            description = "Oldest Owner By Model CAR Name")
+    public List<Document> getOldestOwnerByModelName() {
+        return ownerService.getOldestOwnerByModelName();
+    }
+
 
 }

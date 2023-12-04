@@ -4,9 +4,15 @@ import com.felipecpdev.mongocrud.collections.Owner;
 import com.felipecpdev.mongocrud.repositories.OwnerRepository;
 import com.felipecpdev.mongocrud.services.OwnerService;
 import lombok.AllArgsConstructor;
+import org.bson.Document;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.SortOperation;
+import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -72,5 +78,22 @@ public class OwnerServiceImpl implements OwnerService {
                 pageable,
                 () -> mongoTemplate
                         .count(query.skip(0).limit(0), Owner.class));
+    }
+
+    @Override
+    public List<Document> getOldestOwnerByModelName() {
+        UnwindOperation unwindOperation
+                = Aggregation.unwind("carsList");
+        SortOperation sortOperation
+                = Aggregation.sort(Sort.Direction.DESC, "age");
+        GroupOperation groupOperation
+                = Aggregation.group("carsList.modelName")
+                .first(Aggregation.ROOT)
+                .as("oldestOwner");
+
+        Aggregation aggregation
+                = Aggregation.newAggregation(unwindOperation, sortOperation, groupOperation);
+
+        return mongoTemplate.aggregate(aggregation, Owner.class, Document.class).getMappedResults();
     }
 }
