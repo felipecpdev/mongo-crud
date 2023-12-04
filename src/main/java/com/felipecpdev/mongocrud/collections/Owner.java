@@ -18,6 +18,7 @@ public class Owner {
     private String id;
     private String name;
     private String email;
-    private List<String> phone;
+    private Long age;
+    private List<String> phones;
     private List<Car> carsList;
 }
